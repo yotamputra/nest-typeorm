@@ -1,15 +1,26 @@
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { hashPass } from 'src/common/helpers/bcrypt.helper';
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
-  @Column({ unique: true}) 
-  email: string
+  @Column({ unique: true })
+  email: string;
 
   @Column()
-  password: string
+  password: string;
+
+  @Column()
+  isAdmin: boolean;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
@@ -18,4 +29,7 @@ export class User {
   updatedAt: Date;
 
   @BeforeInsert()
+  async hashPassword() {
+    this.password = await hashPass(this.password);
+  }
 }
