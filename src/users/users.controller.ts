@@ -6,13 +6,18 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Post("/register")
-  register(@Body('email') email: string, @Body('password') password: string) {
-    const user = this.userService.create();
+  async register(@Body('email') email: string, @Body('password') password: string) {
+    const user = await this.userService.create(email, password);
 
     return {
       message: ' User created successfully',
       data: {
-        user,
+        user: {
+          id: user.id,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt
+        },
       },
     };
   }
