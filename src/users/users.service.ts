@@ -1,14 +1,20 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entitiy';
 import { Repository } from 'typeorm';
 import { comparePass } from 'src/common/helpers/bcrypt.helper';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async create(email: string, password: string) {
@@ -22,7 +28,11 @@ export class UsersService {
       throw new BadRequestException('User already exists');
     }
 
-    const newUser = this.userRepository.create({ email, password, isAdmin: false });
+    const newUser = this.userRepository.create({
+      email,
+      password,
+      isAdmin: false,
+    });
     await this.userRepository.save(newUser);
 
     return newUser;
@@ -39,16 +49,23 @@ export class UsersService {
 
     const user = await this.findByEmail(email);
 
-    if(!user) {
-      throw new UnauthorizedException("Invalid email or password")
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const validate = await comparePass(password, user.password);
 
     if (!validate) {
-      throw new UnauthorizedException("Invalid email or password")
+      throw new UnauthorizedException('Invalid email or password');
     }
 
-    return "abc"
+    const payload = {
+      email: user.email,
+      isAdmin: user.isAdmin,
+    };
+
+    const token = await this.jwtService.signAsync(payload);
+
+    return token;
   }
 }
