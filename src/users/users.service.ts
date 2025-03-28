@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entitiy';
 import { Repository } from 'typeorm';
+import { comparePass } from 'src/common/helpers/bcrypt.helper';
 
 @Injectable()
 export class UsersService {
@@ -29,5 +30,25 @@ export class UsersService {
 
   async findByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  async login(email: string, password: string) {
+    if (!email || !password) {
+      throw new BadRequestException('Email and password are required');
+    }
+
+    const user = await this.findByEmail(email);
+
+    if(!user) {
+      throw new UnauthorizedException("Invalid email or password")
+    }
+
+    const validate = await comparePass(password, user.password);
+
+    if (!validate) {
+      throw new UnauthorizedException("Invalid email or password")
+    }
+
+    return "abc"
   }
 }
