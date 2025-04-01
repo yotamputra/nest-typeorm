@@ -45,4 +45,9 @@ export class UsersController {
     const secret = process.env.JWT_SECRET;
     return secret;
   }
+
+  @Get("/input")
+  async input(@Body() ) {
+    const 
+  }
 }
