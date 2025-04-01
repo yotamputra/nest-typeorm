@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { InputDto } from 'src/dto/input.dto';
+import { TestDto } from 'src/dto/test.dto';
 
 @Controller('/api/users')
 export class UsersController {
@@ -46,8 +48,23 @@ export class UsersController {
     return secret;
   }
 
-  @Get("/input")
-  async input(@Body() ) {
-    const 
+  @Post('/input')
+  async input(@Body() inputDto: InputDto) {
+    return {
+      input: inputDto.input,
+    };
+  }
+
+  @Post('/input2')
+  async input2(@Body() testDto: TestDto) {
+    return {
+      message: 'User created successfully',
+      data: {
+        user: {
+          email: testDto.email,
+          password: testDto.password,
+        },
+      },
+    };
   }
 }
